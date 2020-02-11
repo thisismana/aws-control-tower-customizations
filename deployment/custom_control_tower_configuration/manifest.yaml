@@ -1,0 +1,20 @@
+---
+region: eu-west-1
+version: 2020-01-01
+
+organization_policies:
+  
+cloudformation_resources:
+  - name: budget
+    template_file: templates/budget.template
+    parameter_file: parameters/budget.json
+    deploy_method: stack_set
+    # deploy_to_account: # List of Strings
+    #  - <String>
+    deploy_to_ou: # list of strings
+      - Production
+    # ssm_parameters: # List of SSM parameters
+    #  -name: <String>
+    #  -value: <String>
+    # regions: #list of strings
+    #  - <String>

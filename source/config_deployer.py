@@ -27,6 +27,8 @@ from lib.crhelper import cfn_handler
 from uuid import uuid4
 from lib.helper import get_available_regions
 
+print('Hello World.')
+
 # initialise logger
 log_level = os.environ.get('log_level')
 logger = Logger(loglevel=log_level)
@@ -204,13 +206,16 @@ def config_deployer(event):
         unzip_function(input_zip_file_name, base_path, extract_path)
 
         # Find and replace the variable in Manifest file
-        for item in event.get('find_replace'):
-            f = item.get('file_name')
-            parameters = item.get('parameters')
-            exclude_j2_files.append(f)
-            filename, file_extension = os.path.splitext(f)
-            destination_file_path = extract_path + "/" + filename if file_extension == '.j2' else extract_path + "/" + f
-            find_replace(extract_path, f, destination_file_path, parameters)
+        if 'find_replace' in event:
+            for item in event.get('find_replace'):
+                f = item.get('file_name')
+                parameters = item.get('parameters')
+                exclude_j2_files.append(f)
+                filename, file_extension = os.path.splitext(f)
+                destination_file_path = extract_path + "/" + filename if file_extension == '.j2' else extract_path + "/" + f
+                find_replace(extract_path, f, destination_file_path, parameters)
+        else:
+            exclude_j2_files = []
 
         # Zip the contents
         exclude = ['zip'] + exclude_j2_files

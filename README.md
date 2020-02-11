@@ -9,9 +9,8 @@ To get started with the Customizations for AWS Control Tower solution, please re
 * Next, run unit tests to make sure added customization passes the tests 
 
 ``` 
-cd ./deployment 
-chmod +x ./run-unit-tests.sh
-./run-unit-tests.sh
+chmod +x ./deployment/run-unit-tests.sh
+./deployment/run-unit-tests.sh
 ``` 
 
 ## Building the customized solution
@@ -25,14 +24,14 @@ _Note:_ You would have to create an S3 bucket with prefix 'my-bucket-name-<aws_r
  
 * Now build the distributable: 
 ``` 
-chmod +x ./build-s3-dist.sh
-./build-s3-dist.sh $DIST_OUTPUT_BUCKET $SOLUTION_NAME $VERSION
+chmod +x ./deployment/build-s3-dist.sh
+./deployment/build-s3-dist.sh $DIST_OUTPUT_BUCKET $SOLUTION_NAME $VERSION
 ``` 
  
 * Deploy the distributable to an Amazon S3 bucket in your account. _Note:_ you must have the AWS Command Line Interface installed. 
 ``` 
-aws s3 cp deployment/global-s3-assets/  s3://my-bucket-name-<aws_region>/$SOLUTION_NAME/$VERSION/ --recursive --acl bucket-owner-full-control --profile aws-cred-profile-name 
-aws s3 cp deployment/regional-s3-assets/ s3://my-bucket-name-<aws_region>/$SOLUTION_NAME/$VERSION/ --recursive --acl bucket-owner-full-control --profile aws-cred-profile-name
+aws s3 cp deployment/global-s3-assets/  s3://$DIST_OUTPUT_BUCKET-$REGION/$SOLUTION_NAME/$VERSION/ --recursive --acl bucket-owner-full-control --profile $AWS_PROFILE
+aws s3 cp deployment/regional-s3-assets/ s3://$DIST_OUTPUT_BUCKET-$REGION/$SOLUTION_NAME/$VERSION/ --recursive --acl bucket-owner-full-control --profile $AWS_PROFILE
 ``` 
 
 ## Deploying the customized solution

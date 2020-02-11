@@ -75,7 +75,7 @@ Mappings:
       ExecutionMode: 'Sequential' # other supported method 'Parallel'
   AutoBuild:
     CustomControlTower:
-      Flag: 'No'
+      Flag: 'Yes'
 
 Conditions:
   IsPipelineApprovalStageCondition: !Equals [!Ref PipelineApprovalStage, 'Yes']
@@ -369,7 +369,7 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*"
+                  - "*"
               - Effect: "Allow"
                 Action:
                   - s3:PutObject
@@ -460,7 +460,7 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*"
+                  - "*"
               - Effect: "Allow"
                 Action:
                   - s3:GetObject
@@ -563,7 +563,7 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*"
+                  - "*"
               - Effect: "Allow"
                 Action:
                   - s3:GetObject
@@ -667,7 +667,7 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group/aws/lambda/*
+                  - "*"
               - Effect: Allow
                 Action:
                   - xray:PutTraceSegments
@@ -784,10 +784,10 @@ Resources:
                 - "kms:GenerateDataKey*"
                 - "kms:DescribeKey"
               Resource: "*"
-      find_replace:
-        - file_name: manifest.yaml.j2
-          parameters:
-            region: !Sub ${AWS::Region}
+#      find_replace:
+#        - file_name: manifest.yaml.j2
+#          parameters:
+#            region: !Sub ${AWS::Region}
       ServiceToken: !GetAtt CustomControlTowerDeploymentLambda.Arn
 
   StateMachineLambdaRole:
@@ -822,7 +822,7 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group/aws/lambda/*
+                  - "*"
               - Effect: Allow
                 Action:
                   - iam:GetRole
@@ -2550,7 +2550,7 @@ Resources:
                     - logs:CreateLogStream
                     - logs:PutLogEvents
                   Resource:
-                    - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group/aws/lambda/*
+                    - "*"
                 - Effect: Allow
                   Action:
                     - xray:PutTraceSegments
@@ -2597,6 +2597,7 @@ Resources:
     Properties:
       ContentBasedDeduplication: True
       FifoQueue: True
+      QueueName: CustomControlTowerLEDLQueue.fifo
       MessageRetentionPeriod: 1209600 #1209600 seconds (14 days)
       KmsDataKeyReusePeriodSeconds: 300
       KmsMasterKeyId: !Join ["/", ["alias", !FindInMap [KMS, Alias, Name]]]
@@ -2609,6 +2610,7 @@ Resources:
     Properties:
       ContentBasedDeduplication: True
       FifoQueue: True
+      QueueName: CustomControlTowerLE.fifo
       KmsDataKeyReusePeriodSeconds: 300
       KmsMasterKeyId: !Join ["/", ["alias", !FindInMap [KMS, Alias, Name]]]
       MessageRetentionPeriod: 345600  #345600 seconds (4 days)

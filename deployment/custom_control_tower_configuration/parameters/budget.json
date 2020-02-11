@@ -1,0 +1,10 @@
+[
+    {
+      "ParameterKey": "EmailParameter",
+      "ParameterValue": "mnaber@stroeer.de"
+    }, 
+    {
+      "ParameterKey": "AmountParameter",
+      "ParameterValue": "50"
+    }
+  ]

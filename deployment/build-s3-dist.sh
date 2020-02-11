@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # This assumes all of the OS-level configuration has been completed and git repo has already been cloned         
 #                                                                                                                
 # This script should be run from the repo's deployment directory                                                 
@@ -14,6 +14,8 @@
 #  - trademarked-solution-name: name of the solution for consistency                                             
 #                                                                                                                
 #  - version-code: version of the package                                                                        
+
+set -euxo pipefail
 
 # Check to see if input has been provided:                                                                       
 if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
@@ -55,73 +57,88 @@ cp -f deployment/custom-control-tower-initiation.template $template_dist_dir
 
 #COPY deployment/add-on to $build_dist_dir/add-on
 mkdir $template_dist_dir/add-on/
-cp -f -R deployment/add-on/. $template_dist_dir/add-on
+if [[ -d 'deployment/add-on/' ]]; then
+  cp -f -R deployment/add-on/. $template_dist_dir/add-on
+fi
 
 #COPY custom_control_tower_configuration to global-s3-assets
 #Please check to see if this is the correct location or template_dist_dir
-cp -f -R deployment/custom_control_tower_configuration $build_dist_dir/custom_control_tower_configuration/
+if [[ -d "deployment/custom_control_tower_configuration" ]]; then
+  cp -f -R deployment/custom_control_tower_configuration $build_dist_dir/custom_control_tower_configuration/
+fi
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  SED_CMD="sed -i.bak -e"
+else 
+  SED_CMD="sed -i -e"
+fi
 
 echo -e "\n Updating code source bucket in the template with $1"
 replace="s/%DIST_BUCKET_NAME%/$1/g"
-echo "sed -i -e $replace $template_dist_dir/custom-control-tower-initiation.template"
-sed -i -e $replace $template_dist_dir/custom-control-tower-initiation.template
+echo "$SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template"
+$SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template
 
 cd $template_dist_dir/add-on
 for y in `find . -name "*.template"`;
   do
-    echo "sed -i -e $replace $y"
-    sed -i -e $replace $y
+    echo "$SED_CMD $replace $y"
+    $SED_CMD $replace $y
   done
 cd ../../..
 
 echo -e "\n Updating template bucket in the template with $2"
 replace="s/%TEMPLATE_BUCKET_NAME%/$2/g"
-echo "sed -i -e $replace $template_dist_dir/custom-control-tower-initiation.template"
-sed -i -e $replace $template_dist_dir/custom-control-tower-initiation.template
-echo "sed -i -e $replace $build_dist_dir/$rss_file_name"
-sed -i -e $replace $build_dist_dir/$rss_file_name
+echo "$SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template"
+$SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template
+
+# rss_file_name is unbound
+# echo "$SED_CMD $replace $build_dist_dir/$rss_file_name"
+# $SED_CMD $replace $build_dist_dir/$rss_file_name
 
 cd $template_dist_dir/add-on
 for y in `find . -name "*.template"`;
   do
-    echo "sed -i -e $replace $y"
-    sed -i -e $replace $y
+    echo "$SED_CMD $replace $y"
+    $SED_CMD $replace $y
   done
 cd ../../..
 
 # Replace solution name with real value
 echo -e "\n >> Updating solution name in the template with $3"
 replace="s/%SOLUTION_NAME%/$3/g"
-echo "sed -i -e $replace $template_dist_dir/custom-control-tower-initiation.template"
-sed -i -e $replace $template_dist_dir/custom-control-tower-initiation.template
+echo "$SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template"
+$SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template
 
 cd $template_dist_dir/add-on
 for y in `find . -name "*.template"`;
   do
-    echo "sed -i -e $replace $y"
-    sed -i -e $replace $y
+    echo "$SED_CMD $replace $y"
+    $SED_CMD $replace $y
   done
 cd ../../..
 
 echo -e "\n Updating version number in the template with $4"
 replace="s/%VERSION%/$4/g"
-echo "sed -i -e $replace $template_dist_dir/custom-control-tower-initiation.template"
-sed -i -e $replace $template_dist_dir/custom-control-tower-initiation.template
+echo "$SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template"
+$SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template
 
-echo "sed -i -e $replace $template_dist_dir/$rss_file_name"
-sed -i -e $replace $template_dist_dir/$rss_file_name
+# rss_file_name is unbound
+# echo "$SED_CMD $replace $template_dist_dir/$rss_file_name"
+# $SED_CMD $replace $template_dist_dir/$rss_file_name
 
 cd $template_dist_dir/add-on
 for y in `find . -name "*.template"`;
   do
-    echo "sed -i -e $replace $y"
-    sed -i -e $replace $y
+    echo "$SED_CMD $replace $y"
+    $SED_CMD $replace $y
   done
 cd ../../..
 
 # Create configuration zip file
-echo -e "\n Creating zip file with Custom Control Tower configuration"
-cd $build_dist_dir/custom_control_tower_configuration/;  zip -Xr $build_dist_dir/custom-control-tower-configuration.zip ./* ; cd -
+if [[ -d "$build_dist_dir/custom_control_tower_configuration" ]]; then
+  echo -e "\n Creating zip file with Custom Control Tower configuration"
+  cd $build_dist_dir/custom_control_tower_configuration/;  zip -Xr $build_dist_dir/custom-control-tower-configuration.zip ./* ; cd -
+fi
 
 #Copy Lambda Zip Files to the Global S3 Assets
 echo -e "\n Copying lambda zip files to Global S3 Assets"
