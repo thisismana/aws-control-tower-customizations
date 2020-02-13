@@ -27,8 +27,6 @@ from lib.crhelper import cfn_handler
 from uuid import uuid4
 from lib.helper import get_available_regions
 
-print('Hello World.')
-
 # initialise logger
 log_level = os.environ.get('log_level')
 logger = Logger(loglevel=log_level)
