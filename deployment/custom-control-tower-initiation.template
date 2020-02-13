@@ -280,12 +280,15 @@ Resources:
                 Category: Source
                 Owner: AWS
                 Version: "1"
-                Provider: S3
+                Provider: CodeCommit
               OutputArtifacts:
                 - Name: SourceApp
               Configuration:
-                S3Bucket: !Ref CustomControlTowerPipelineS3Bucket
-                S3ObjectKey: !FindInMap [BucketConfiguration, CustomControlTowerPipelineS3TriggerKey, Name]
+                RepositoryName: !GetAtt CodeCommitRepository.Name
+                BranchName: master
+                PollForSourceChanges: false
+                # S3Bucket: !Ref CustomControlTowerPipelineS3Bucket
+                # S3ObjectKey: !FindInMap [BucketConfiguration, CustomControlTowerPipelineS3TriggerKey, Name]
               RunOrder: 1
         - Name: Build
           Actions:
@@ -339,6 +342,58 @@ Resources:
                 Provider: CodeBuild
               Configuration:
                 ProjectName: !Ref StackSetCodeBuild
+
+  CodeCommitRepository:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryDescription: Custom Control Tower Resources and Policies
+      RepositoryName: customizations-for-aws-control-tower
+
+  CodeCommitEventRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - events.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      Policies:
+        -
+          PolicyName: cwe-pipeline-execution
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              -
+                Effect: Allow
+                Action: codepipeline:StartPipelineExecution
+                Resource: !Join [ '', [ 'arn:aws:codepipeline:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':Custom-Control-Tower-CodePipeline'] ]
+
+  CodeCommitEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.codecommit
+        detail-type:
+          - 'CodeCommit Repository State Change'
+        resources:
+          - !Join [ '', [ 'arn:aws:codecommit:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':customizations-for-aws-control-tower' ] ]
+        detail:
+          referenceType:
+            - branch
+          referenceName:
+            - master
+      Targets:
+        -
+          Arn: 
+            !Join [ '', [ 'arn:aws:codepipeline:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':Custom-Control-Tower-CodePipeline'] ]
+          RoleArn: !GetAtt CodeCommitEventRole.Arn
+          Id: codepipeline-AppPipeline
 
   CustomControlTowerCodeBuildRole:
     Type: "AWS::IAM::Role"
