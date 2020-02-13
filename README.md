@@ -17,7 +17,7 @@ chmod +x ./deployment/run-unit-tests.sh
 * Configure the solution name, version number and bucket name of your target Amazon S3 distribution bucket 
 ``` 
 export SOLUTION_NAME=customizations-for-aws-control-tower # name of the solution
-export DIST_OUTPUT_BUCKET=my-bucket-name # bucket where customized code will reside 
+export DIST_OUTPUT_BUCKET=my-bucket-name # bucket where the code build sources will reside 
 export VERSION=my-version # version number for the customized code 
 ``` 
 _Note:_ You would have to create an S3 bucket with prefix 'my-bucket-name-<aws_region>'; aws_region is where you are testing the customized solution. Also, the assets in bucket should be publicly accessible 
@@ -30,8 +30,8 @@ chmod +x ./deployment/build-s3-dist.sh
  
 * Deploy the distributable to an Amazon S3 bucket in your account. _Note:_ you must have the AWS Command Line Interface installed. 
 ``` 
-aws s3 cp deployment/global-s3-assets/  s3://$DIST_OUTPUT_BUCKET-$REGION/$SOLUTION_NAME/$VERSION/ --recursive --acl bucket-owner-full-control --profile $AWS_PROFILE
-aws s3 cp deployment/regional-s3-assets/ s3://$DIST_OUTPUT_BUCKET-$REGION/$SOLUTION_NAME/$VERSION/ --recursive --acl bucket-owner-full-control --profile $AWS_PROFILE
+aws s3 cp deployment/global-s3-assets/  s3://$DIST_OUTPUT_BUCKET/$SOLUTION_NAME/$VERSION/ --recursive --acl bucket-owner-full-control --profile $AWS_PROFILE
+aws s3 cp deployment/regional-s3-assets/ s3://$DIST_OUTPUT_BUCKET/$SOLUTION_NAME/$VERSION/ --recursive --acl bucket-owner-full-control --profile $AWS_PROFILE
 ``` 
 
 ## Deploying the customized solution

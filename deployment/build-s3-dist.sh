@@ -73,11 +73,6 @@ else
   SED_CMD="sed -i -e"
 fi
 
-echo -e "\n Updating code source bucket in the template with $1"
-replace="s/%DIST_BUCKET_NAME%/$1/g"
-echo "$SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template"
-$SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template
-
 cd $template_dist_dir/add-on
 for y in `find . -name "*.template"`;
   do
@@ -86,8 +81,8 @@ for y in `find . -name "*.template"`;
   done
 cd ../../..
 
-echo -e "\n Updating template bucket in the template with $2"
-replace="s/%TEMPLATE_BUCKET_NAME%/$2/g"
+echo -e "\n Updating template bucket in the template with $1"
+replace="s/%TEMPLATE_BUCKET_NAME%/$1/g"
 echo "$SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template"
 $SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template
 
@@ -104,8 +99,8 @@ for y in `find . -name "*.template"`;
 cd ../../..
 
 # Replace solution name with real value
-echo -e "\n >> Updating solution name in the template with $3"
-replace="s/%SOLUTION_NAME%/$3/g"
+echo -e "\n >> Updating solution name in the template with $2"
+replace="s/%SOLUTION_NAME%/$2/g"
 echo "$SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template"
 $SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template
 
@@ -117,8 +112,8 @@ for y in `find . -name "*.template"`;
   done
 cd ../../..
 
-echo -e "\n Updating version number in the template with $4"
-replace="s/%VERSION%/$4/g"
+echo -e "\n Updating version number in the template with $3"
+replace="s/%VERSION%/$3/g"
 echo "$SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template"
 $SED_CMD $replace $template_dist_dir/custom-control-tower-initiation.template
 

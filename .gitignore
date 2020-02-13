@@ -1,6 +1,5 @@
 .env
-dev_cycle.sh
-dev_update.sh
+dev_*.sh
 deployment/global-s3-assets
 deployment/regional-s3-assets
 source

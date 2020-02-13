@@ -1,0 +1,23 @@
+# install with:
+# aws cloudformation create-stack --stack-name <STACK_NAME> --template-body file://<PATH_TO_THIS_FILE>
+
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  Prerequisites for the control tower customizations: Initial S3 bucket to upload the 
+  template and code build sources, because the template is too long to upload it directly
+  
+Resources:
+  s3Bucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      AccessControl: PublicRead
+      BucketName: !Sub control-tower-build-sources-${AWS::AccountId}-${AWS::Region}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: True
+        BlockPublicPolicy: True
+        IgnorePublicAcls: True
+        RestrictPublicBuckets: True
